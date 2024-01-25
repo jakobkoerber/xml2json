@@ -6,7 +6,6 @@
  * Copyright © 2021年 zjhcsoft. All rights reserved.
  */
 @TestOn('vm')
-
 import 'dart:convert';
 import 'package:test/test.dart';
 import 'package:xml2json/xml2json.dart';
@@ -24,7 +23,7 @@ void main() {
 
     final xmlParser = Xml2Json();
     xmlParser.parse(input);
-    var jsonResponse = xmlParser.toParkerWithAttrs(array: ['item']);
+    var jsonResponse = xmlParser.toParkerWithAttrs(entries: {'item': null});
     print(jsonResponse);
     expect(jsonResponse,
         '{"root": {"result": "ok", "items": {"item": ["Flutter"]}}}');
