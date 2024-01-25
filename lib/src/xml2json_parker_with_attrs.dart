@@ -41,15 +41,8 @@ class _Xml2JsonParkerWithAttrs {
           obj[nodeName].add(<dynamic, dynamic>{});
           obj = obj[nodeName].last;
         } else if ((entries ?? {}).containsKey(node.name.qualified)) {
-          final entry = (entries ?? {})[node.name.qualified];
-          if (entry != null) {
-            final name = '"$entry"';
-            obj[name] = <dynamic>[<dynamic, dynamic>{}];
-            obj = obj[name].last;
-          } else {
-            obj[nodeName] = <dynamic>[<dynamic, dynamic>{}];
-            obj = obj[nodeName].last;
-          }
+          obj[nodeName] = <dynamic>[<dynamic, dynamic>{}];
+          obj = obj[nodeName].last;
         } else {
           obj[nodeName] = <dynamic, dynamic>{};
           obj = obj[nodeName];
