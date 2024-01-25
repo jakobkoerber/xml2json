@@ -13,7 +13,7 @@ part of '../xml2json.dart';
 class _Xml2JsonParkerWithAttrs {
   /// Parker transformer function.
   Map<dynamic, dynamic>? _transform(dynamic node, dynamic objin,
-      {List<String>? array}) {
+      {Map<String, String?>? entries}) {
     Map<dynamic, dynamic>? obj = objin;
     if (node is XmlElement) {
       final nodeName = '"${node.name.qualified}"';
@@ -23,14 +23,16 @@ class _Xml2JsonParkerWithAttrs {
       } else if (obj[nodeName] is Map && !obj.keys.contains(nodeName)) {
         obj[nodeName] = <dynamic>[obj[nodeName], <dynamic, dynamic>{}];
         obj = obj[nodeName].last;
-      } else {
+      } else if (!(entries ?? {}).containsValue(node.name.qualified)) {
         if (node.children.isEmpty) {
-          // Add a dummy node, node children cannot now be empty
-          final dummyNode = XmlText('');
-          node.children.add(dummyNode);
-        }
-        if (node.children[0] is XmlText || node.children[0] is XmlCDATA) {
-          _parseXmlTextNode(node, obj, nodeName, array: array);
+          if ((entries ?? {}).keys.contains(node.name.qualified)) {
+            obj[nodeName] = [];
+          } else {
+            obj[nodeName] = null;
+          }
+        } else if (node.children[0] is XmlText ||
+            node.children[0] is XmlCDATA) {
+          _parseXmlTextNode(node, obj, nodeName, entries: entries);
         } else if (obj[nodeName] is Map) {
           var jsonCopy = json.decode(json.encode(obj[nodeName]));
           obj[nodeName] = <dynamic>[jsonCopy, <dynamic, dynamic>{}];
@@ -38,9 +40,16 @@ class _Xml2JsonParkerWithAttrs {
         } else if (obj[nodeName] is List) {
           obj[nodeName].add(<dynamic, dynamic>{});
           obj = obj[nodeName].last;
-        } else if ((array ?? []).contains(node.name.qualified)) {
-          obj[nodeName] = <dynamic>[<dynamic, dynamic>{}];
-          obj = obj[nodeName].last;
+        } else if ((entries ?? {}).containsKey(node.name.qualified)) {
+          final entry = (entries ?? {})[node.name.qualified];
+          if (entry != null) {
+            final name = '"$entry"';
+            obj[name] = <dynamic>[<dynamic, dynamic>{}];
+            obj = obj[name].last;
+          } else {
+            obj[nodeName] = <dynamic>[<dynamic, dynamic>{}];
+            obj = obj[nodeName].last;
+          }
         } else {
           obj[nodeName] = <dynamic, dynamic>{};
           obj = obj[nodeName];
@@ -48,11 +57,11 @@ class _Xml2JsonParkerWithAttrs {
       }
 
       for (var j = 0; j < node.children.length; j++) {
-        _transform(node.children[j], obj, array: array);
+        _transform(node.children[j], obj, entries: entries);
       }
     } else if (node is XmlDocument) {
       for (var j = 0; j < node.children.length; j++) {
-        _transform(node.children[j], obj, array: array);
+        _transform(node.children[j], obj, entries: entries);
       }
     }
 
@@ -61,7 +70,7 @@ class _Xml2JsonParkerWithAttrs {
 
   /// Parse XmlText node
   void _parseXmlTextNode(dynamic node, dynamic obj, dynamic nodeName,
-      {List<String>? array}) {
+      {Map<String, String?>? entries}) {
     final sanitisedNodeData =
         _Xml2JsonUtils.escapeTextForJson(node.children[0].text);
     var nodeData = '"$sanitisedNodeData"';
@@ -89,17 +98,18 @@ class _Xml2JsonParkerWithAttrs {
         obj[nodeName] = nodeData;
       }
     }
-    if ((array ?? []).contains(node.name.qualified) && obj[nodeName] is! List) {
+    if ((entries ?? {}).keys.contains(node.name.qualified) &&
+        obj[nodeName] is! List) {
       var jsonCopy = json.decode(json.encode(obj[nodeName]));
       obj[nodeName] = <dynamic>[jsonCopy];
     }
   }
 
   /// Transformer function
-  String transform(XmlDocument? xmlNode, {List<String>? array}) {
+  String transform(XmlDocument? xmlNode, {Map<String, String?>? entries}) {
     Map<dynamic, dynamic>? json;
     try {
-      json = _transform(xmlNode, <dynamic, dynamic>{}, array: array);
+      json = _transform(xmlNode, <dynamic, dynamic>{}, entries: entries);
     } on Exception catch (e) {
       throw Xml2JsonException(
           'Parker with attrs internal transform error => ${e.toString()}');

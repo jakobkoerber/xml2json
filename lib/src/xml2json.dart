@@ -109,7 +109,7 @@ class Xml2Json {
   }
 
   /// Parker with attributes transformer
-  String toParkerWithAttrs({List<String>? array}) {
+  String toParkerWithAttrs({Map<String, String?>? entries}) {
     if (_result == null) {
       throw Xml2JsonException('toParkerWithAttrs - no parse result');
     }
@@ -117,7 +117,7 @@ class Xml2Json {
     String json;
     final parkerTransformer = _Xml2JsonParkerWithAttrs();
     try {
-      json = parkerTransformer.transform(_result, array: array);
+      json = parkerTransformer.transform(_result, entries: entries);
     } on Exception catch (e) {
       throw Xml2JsonException('toParkerWithAttrs error => ${e.toString()}');
     }

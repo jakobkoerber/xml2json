@@ -57,7 +57,7 @@ void main() {
   // Transform to JSON using ParkerWithAttrs
   // A node in XML should be an array, but if there is only one element in the array,
   // it will only be parsed into an object, so we need to specify the node as an array
-  json = myTransformer.toParkerWithAttrs(array: ['contact']);
+  json = myTransformer.toParkerWithAttrs(entries: {'contact': null});
   print('ParkerWithAttrs, specify the node as an array');
   print('');
   print(json);
