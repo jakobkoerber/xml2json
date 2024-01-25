@@ -35,27 +35,15 @@ class _Xml2JsonParkerWithAttrs {
           var jsonCopy = json.decode(json.encode(obj[nodeName]));
           obj[nodeName] = <dynamic>[jsonCopy, <dynamic, dynamic>{}];
           obj = obj[nodeName].last;
-          if (node.attributes.isNotEmpty) {
-            _parseAttrs(node, obj);
-          }
         } else if (obj[nodeName] is List) {
           obj[nodeName].add(<dynamic, dynamic>{});
           obj = obj[nodeName].last;
-          if (node.attributes.isNotEmpty) {
-            _parseAttrs(node, obj);
-          }
         } else if ((array ?? []).contains(node.name.qualified)) {
           obj[nodeName] = <dynamic>[<dynamic, dynamic>{}];
           obj = obj[nodeName].last;
-          if (node.attributes.isNotEmpty) {
-            _parseAttrs(node, obj);
-          }
         } else {
           obj[nodeName] = <dynamic, dynamic>{};
           obj = obj[nodeName];
-          if (node.attributes.isNotEmpty) {
-            _parseAttrs(node, obj);
-          }
         }
       }
 
@@ -71,13 +59,6 @@ class _Xml2JsonParkerWithAttrs {
     return obj;
   }
 
-  /// Analyze the attribute value in the node
-  void _parseAttrs(dynamic node, dynamic obj) {
-    node.attributes.forEach((attr) {
-      obj!['"_${attr.name.qualified}"'] = '"${attr.value}"';
-    });
-  }
-
   /// Parse XmlText node
   void _parseXmlTextNode(dynamic node, dynamic obj, dynamic nodeName,
       {List<String>? array}) {
@@ -90,9 +71,7 @@ class _Xml2JsonParkerWithAttrs {
     var attrs = node.attributes;
     // Check for attributes in the start node
     if (attrs.isNotEmpty) {
-      var objTemp = <dynamic, dynamic>{};
-      _parseAttrs(node, objTemp);
-      objTemp['"value"'] = nodeData;
+      var objTemp = nodeData;
       if (obj[nodeName] is Map) {
         var jsonCopy = json.decode(json.encode(obj[nodeName]));
         obj[nodeName] = <dynamic>[jsonCopy, objTemp];
