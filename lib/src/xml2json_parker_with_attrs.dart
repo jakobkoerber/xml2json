@@ -61,6 +61,14 @@ class _Xml2JsonParkerWithAttrs {
     return obj;
   }
 
+  /// Analyze the attribute value in the node
+  void _parseAttrs(dynamic node, dynamic obj) {
+    node.attributes.forEach((attr) {
+      obj!['"_${_Xml2JsonUtils.escapeTextForJson(attr.name.qualified)}"'] =
+          '"${_Xml2JsonUtils.escapeTextForJson(attr.value)}"';
+    });
+  }
+
   /// Parse XmlText node
   void _parseXmlTextNode(dynamic node, dynamic obj, dynamic nodeName,
       {Map<String, String?>? entries}) {

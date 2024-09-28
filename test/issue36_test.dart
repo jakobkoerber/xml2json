@@ -6,6 +6,8 @@
  * Copyright © 2021年 zjhcsoft. All rights reserved.
  */
 @TestOn('vm')
+library;
+
 import 'dart:convert';
 import 'package:test/test.dart';
 import 'package:xml2json/xml2json.dart';
