@@ -5,8 +5,6 @@
  * Copyright :  S.Hamblett@OSCF
  */
 
-library xml2json;
-
 import 'dart:convert';
 
 import 'package:xml/xml.dart';
