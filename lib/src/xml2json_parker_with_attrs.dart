@@ -11,9 +11,29 @@ part of '../xml2json.dart';
 /// ParkerWithAttrs transform class.
 /// Used as an alternative to Parker if the node element contains attributes.
 class _Xml2JsonParkerWithAttrs {
-  /// Parker transformer function.
-  Map<dynamic, dynamic>? _transform(dynamic node, dynamic objin,
-      {Map<String, String?>? entries}) {
+  /// Transformer function
+  String transform(XmlDocument? xmlNode, {Map<String, String?>? entries}) {
+    Map<dynamic, dynamic>? json;
+    try {
+      json = _transform(xmlNode, <dynamic, dynamic>{}, entries: entries);
+    } on Exception catch (e, stack) {
+      Error.throwWithStackTrace(
+        Xml2JsonException(
+          'Parker with attrs internal transform error => ${e.toString()}',
+        ),
+        stack,
+      );
+    }
+
+    return json.toString();
+  }
+
+  // Parker transformer function.
+  Map<dynamic, dynamic>? _transform(
+    dynamic node,
+    dynamic objin, {
+    Map<String, String?>? entries,
+  }) {
     Map<dynamic, dynamic>? obj = objin;
     if (node is XmlElement) {
       final nodeName = '"${node.name.qualified}"';
@@ -30,8 +50,8 @@ class _Xml2JsonParkerWithAttrs {
           } else {
             obj[nodeName] = null;
           }
-        } else if (node.children[0] is XmlText ||
-            node.children[0] is XmlCDATA) {
+        } else if (node.children.first is XmlText ||
+            node.children.first is XmlCDATA) {
           _parseXmlTextNode(node, obj, nodeName, entries: entries);
         } else if (obj[nodeName] is Map) {
           var jsonCopy = json.decode(json.encode(obj[nodeName]));
@@ -61,7 +81,7 @@ class _Xml2JsonParkerWithAttrs {
     return obj;
   }
 
-  /// Analyze the attribute value in the node
+  // Analyze the attribute value in the node
   void _parseAttrs(dynamic node, dynamic obj) {
     node.attributes.forEach((attr) {
       obj!['"_${_Xml2JsonUtils.escapeTextForJson(attr.name.qualified)}"'] =
@@ -69,11 +89,16 @@ class _Xml2JsonParkerWithAttrs {
     });
   }
 
-  /// Parse XmlText node
-  void _parseXmlTextNode(dynamic node, dynamic obj, dynamic nodeName,
-      {Map<String, String?>? entries}) {
-    final sanitisedNodeData =
-        _Xml2JsonUtils.escapeTextForJson(node.children[0].text);
+  // Parse XmlText node
+  void _parseXmlTextNode(
+    dynamic node,
+    dynamic obj,
+    dynamic nodeName, {
+    Map<String, String?>? entries,
+  }) {
+    final sanitisedNodeData = _Xml2JsonUtils.escapeTextForJson(
+      node.children[0].text,
+    );
     var nodeData = '"$sanitisedNodeData"';
     if (nodeData.isEmpty) {
       nodeData = '';
@@ -104,18 +129,5 @@ class _Xml2JsonParkerWithAttrs {
       var jsonCopy = json.decode(json.encode(obj[nodeName]));
       obj[nodeName] = <dynamic>[jsonCopy];
     }
-  }
-
-  /// Transformer function
-  String transform(XmlDocument? xmlNode, {Map<String, String?>? entries}) {
-    Map<dynamic, dynamic>? json;
-    try {
-      json = _transform(xmlNode, <dynamic, dynamic>{}, entries: entries);
-    } on Exception catch (e) {
-      throw Xml2JsonException(
-          'Parker with attrs internal transform error => ${e.toString()}');
-    }
-
-    return json.toString();
   }
 }

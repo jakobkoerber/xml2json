@@ -27,8 +27,10 @@ void main() {
     xmlParser.parse(input);
     var jsonResponse = xmlParser.toParkerWithAttrs(entries: {'item': null});
     print(jsonResponse);
-    expect(jsonResponse,
-        '{"root": {"result": "ok", "items": {"item": ["Flutter"]}}}');
+    expect(
+      jsonResponse,
+      '{"root": {"result": "ok", "items": {"item": ["Flutter"]}}}',
+    );
     var decodedOk = true;
     try {
       json.decode(jsonResponse);
